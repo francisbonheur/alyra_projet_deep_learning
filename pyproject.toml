@@ -1,0 +1,24 @@
+[project]
+name = "ml-deployment-fastapi"
+version = "0.1.0"
+description = "API FastAPI de détection d'image violente"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "scikit-learn>=1.5.0",
+    "numpy>=1.26.0",
+    "pydantic>=2.7.0",
+    "Pillow<=12.0.0",
+    "tensorflow>=2.20.0",
+    "python-multipart>=0.0.20"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+# Si utilisation de pytest.ini tu peux aussi configurer ici :
+[tool.pytest.ini_options]
+pythonpath = ["."]
