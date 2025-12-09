@@ -29,14 +29,15 @@ async def predict_image(file: UploadFile = File(...)):
         image = await file.read()
         preprocessed_image = preprocess_image(image)
         prediction = predict(model, preprocessed_image)
-        round_prediction = {
-            i: round(p, 2) for i, p in enumerate(prediction[0])
+        probas = {
+            "0": float(1 - prediction[0][0]),
+            "1": float(prediction[0][0])
         }
 
         return {
-            "Number": np.argmax(prediction[0]),
-            "Proba": round_prediction
+            "Number": int(np.round(prediction[0][0])),
+            "Proba": probas
         }
 
-    except Exception:
-        raise HTTPException(status_code=500, detail="Error reading image file")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error: " + str(e))
