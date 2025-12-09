@@ -1,0 +1,11 @@
+__pycache__/
+__pycache__/*
+
+app/__pycache__/
+app/__pycache__/*
+
+
+preprocessing/*
+
+# vs code settings
+.vscode/

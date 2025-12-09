@@ -16,8 +16,8 @@ RUN uv sync --no-dev
 
 # Copier le code de l'application et les modèles
 COPY main.py .
-COPY app .
-COPY models ../models
+COPY app ./app
+COPY models ./models
 
 # (éventuels autres fichiers)
 # COPY tests ./tests
@@ -29,6 +29,7 @@ ENV PORT=8000
 
 EXPOSE 8000
 
-# Lancement de l'API FastAPI avec uvicorn
-# On suppose que dans app/app.py tu as: app = FastAPI(...)
+RUN cd /app
+
 CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
