@@ -23,10 +23,6 @@ COPY models ./models
 # COPY tests ./tests
 # COPY README.md .
 
-# Variables d'env pour FastAPI / uvicorn
-ENV HOST=0.0.0.0
-ENV PORT=8000
-
 EXPOSE 8000
 
 RUN cd /app
