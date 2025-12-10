@@ -12,7 +12,7 @@ from app.image_model import load_model, predict
 app = FastAPI()
 
 # chargement du modèle au démarrage de l'Application
-model = load_model("models/mobilenetv2_flowers_finetuned.keras")
+model = load_model("models/mobilenetv2_flowers_feature_extract.keras")
 
 
 @app.get('/healthcheck')
