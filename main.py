@@ -11,12 +11,26 @@ from app.image_model import load_model, predict
 # creation de l'instance fastAPI
 app = FastAPI()
 
-# chargement du modèle au démarrage de l'Application
-model = load_model("models/mobilenetv2_flowers_feature_extract.keras")
+model = None
+
+try:
+    # chargement du modèle au démarrage de l'Application
+    model = load_model("models/mobilenetv2_violence_feature_extract.keras")
+except Exception as e:
+    print(f"Error loading model: {e}")
 
 
 @app.get('/healthcheck')
 def health_check():
+    if not model:
+        raise HTTPException(
+            status_code=500,
+            detail={ 
+                "status": "error", 
+                "message": "Model not loaded."
+            }
+        )
+
     return {
         "status": "ok", 
         "message": "API is running smoothly."
