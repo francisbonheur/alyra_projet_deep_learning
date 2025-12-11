@@ -4,20 +4,20 @@ import numpy as np
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from app.schemas import ImagePrediction
 
-from app.image_model import ViolencePredictionCVModel, get_model
+from app.models import PredictionModel, get_models
 
 
 # creation de l'instance fastAPI
 app = FastAPI()
 
 @app.get('/healthcheck')
-def health_check(model: ViolencePredictionCVModel = Depends(get_model)):
-    if not model:
+def health_check(models: list[PredictionModel] = Depends(get_models)):
+    if len(models) == 0:
         raise HTTPException(
             status_code=500,
             detail={ 
                 "status": "error", 
-                "message": "Model not loaded."
+                "message": "Models not loaded."
             }
         )
 
@@ -30,19 +30,31 @@ def health_check(model: ViolencePredictionCVModel = Depends(get_model)):
 @app.post("/predict_violence", response_model=ImagePrediction)
 async def predict_image(
     file: UploadFile = File(...),
-    model: ViolencePredictionCVModel = Depends(get_model)
+    models: list[PredictionModel] = Depends(get_models)
 ):
     try:
+        predicted_class = 0
+        predictions = []
+
         image = await file.read()
-        prediction = model.predict(image)
-        probas = {
-            "0": float(1 - prediction[0][0]),
-            "1": float(prediction[0][0])
-        }
+        for model in models:
+            prediction = model.predict(image)
+            predicted_class = int(np.round(prediction[0][0]))
+
+            predictions.append({
+                "model_path": model.get_model_path(),
+                "probabilites": {
+                    "0": float(1 - prediction[0][0]),
+                    "1": float(prediction[0][0])
+                }
+            })
+
+            if predicted_class == 1:
+                break
 
         return {
-            "Number": int(np.round(prediction[0][0])),
-            "Proba": probas
+            "predicted_class": predicted_class,
+            "predictions": predictions
         }
 
     except Exception as e:

@@ -2,5 +2,5 @@ from pydantic import BaseModel
 
 
 class ImagePrediction(BaseModel):
-    Number: int
-    Proba: dict
+    predicted_class: int
+    predictions: list[dict]
