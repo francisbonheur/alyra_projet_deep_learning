@@ -1,3 +1,17 @@
+"""
+models.py : Module de définition des modèles de prédiction
+
+Contient les classes de chargement des modèles de computer vision
+pour la détection de contenu inapproprié.
+ - images à caractère sexuel
+ - images contenant des scènes de violence
+
+Pour chaque modèle, une nouvelle implémentation de la classe
+PredictionCVModel doit être créée et une instance de cette nouvelle
+classe doit être rajoutée à la liste de models renvoyés par la
+méthode get_models.
+"""
+
 from abc import ABC, abstractmethod
 import numpy as np
 from PIL import Image
@@ -10,21 +24,45 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 VIOLENCE_CV_MODEL_PATH = "models/mobilenetv2_violence_feature_extract.keras"
 
 
-class PredictionModel(ABC): 
+class PredictionModel(ABC):
+    """
+    Classe abstraite définisant les méthodes communes 
+    à tous les modèles de prédiction.
+    """
     @abstractmethod
     def predict(self, image):
+        """
+        Méthode de prédiction
+        
+        :param image: image à utiliser pour la prédiction
+        :return: résultat de la prédiction
+        """
         pass
 
     @abstractmethod
     def get_model_path(self):
+        """
+        Renvoie le chemin d'accès au modèle
+
+        :return: chemin du modèle
+        """
         pass
 
     @abstractmethod
     def preprocess_image(self, image):
+        """
+        Méthode de pré-traitement de l'image avant la prédiction
+
+        :param image: image à pré-traiter
+        :return: image pré-traitée
+        """
         pass
 
 
 class ViolencePredictionCVModel(PredictionModel):
+    """
+    Classe de chargement du modèles de prédiction de violence
+    """
     def __init__(self, model_path):
         self.model_path = model_path
         self.model = tf.keras.models.load_model(model_path)
@@ -32,7 +70,6 @@ class ViolencePredictionCVModel(PredictionModel):
     def get_model_path(self):
         return self.model_path
     
-    # fonction de preprocessing des données d'entrée
     def preprocess_image(self, image):
         try:
             image = Image.open(io.BytesIO(image))
@@ -56,6 +93,9 @@ class ViolencePredictionCVModel(PredictionModel):
 
 
 def get_models() -> list[PredictionModel]:
+    """
+    Fonction de chargement des modèles de prédiction
+    """
     models: list[PredictionModel] = []
 
     try:

@@ -10,13 +10,20 @@ from app.models import PredictionModel, get_models
 # creation de l'instance fastAPI
 app = FastAPI()
 
+
 @app.get('/healthcheck')
 def health_check(models: list[PredictionModel] = Depends(get_models)):
+    """
+    Endpoint de vérification de l'état de chargement
+    des modèles de computer vision
+
+    :param models: liste des modèles chargés
+    """
     if len(models) == 0:
         raise HTTPException(
             status_code=500,
             detail={ 
-                "status": "error", 
+                "status": "error",
                 "message": "Models not loaded."
             }
         )
@@ -27,11 +34,19 @@ def health_check(models: list[PredictionModel] = Depends(get_models)):
     }
 
 
-@app.post("/predict_violence", response_model=ImagePrediction)
+@app.post("/compliance", response_model=ImagePrediction)
 async def predict_image(
     file: UploadFile = File(...),
     models: list[PredictionModel] = Depends(get_models)
 ):
+    """
+    Docstring for predict_image
+    
+    :param file: Description
+    :type file: UploadFile
+    :param models: Description
+    :type models: list[PredictionModel]
+    """
     try:
         predicted_class = 0
         predictions = []
