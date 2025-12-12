@@ -1,5 +1,6 @@
 """
-models.py : Module de définition des modèles de prédiction
+models.py : Module de définition des classes de chargement
+des modèles de prédiction
 
 Contient les classes de chargement des modèles de computer vision
 pour la détection de contenu inapproprié.
@@ -8,7 +9,7 @@ pour la détection de contenu inapproprié.
 
 Pour chaque modèle, une nouvelle implémentation de la classe
 PredictionCVModel doit être créée et une instance de cette nouvelle
-classe doit être rajoutée à la liste de models renvoyés par la
+classe doit être rajoutée à la liste de modèles renvoyée par la
 méthode get_models.
 """
 
