@@ -1,5 +1,6 @@
 # import des librairies
 import asyncio
+import json
 
 import numpy as np
 
@@ -54,7 +55,7 @@ async def check_compliance(name, queue):
 
         service.update_prediction(
             prediction_requests.id,
-            str(prediction_result)
+            json.dumps(prediction_result)
         )
 
     except Exception as e:
@@ -154,6 +155,28 @@ async def create_compliance_check_request(
         return {
             "id": prediction_request.id
         }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error: " + str(e))
+
+
+@app.get("/image/compliance/request")
+async def get_compliance_check_result(
+    id: int,
+    service: PredictionService = Depends(get_prediction_service)
+):
+    """
+    Récupérer le résultat de la vérification de conformité
+    
+    :param id: Description
+    :type id: int
+    :param service: Description
+    :type service: PredictionService
+    """
+    try:
+        prediction_request = service.get(id)
+
+        return json.loads(prediction_request.result)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error: " + str(e))
