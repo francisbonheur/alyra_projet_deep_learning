@@ -4,6 +4,9 @@ from sqlmodel import Session, create_engine, SQLModel, select
 
 
 class PredictionRepository(ABC):
+    """
+    Classe de manipulation (CRUD) des objets de type PredictionRequest
+    """
     @abstractmethod
     def get(self, id: int) -> PredictionRequest | None:
         pass
@@ -22,7 +25,9 @@ class PredictionRepository(ABC):
 
 
 class PredictionRepositoryImpl(PredictionRepository):
-
+    """
+    Implémentation sqlite
+    """
     def __init__(self, db_string="sqlite:///predictions.db"):
         self.engine = create_engine(db_string)
         SQLModel.metadata.create_all(self.engine)

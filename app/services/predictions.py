@@ -3,7 +3,9 @@ from app.database.model import PredictionRequest
 
 
 class PredictionService:
-
+    """
+    Service métier de manipulation des demandes de prédictions
+    """
     def __init__(self, repository: PredictionRepository):
         self.repository = repository
 

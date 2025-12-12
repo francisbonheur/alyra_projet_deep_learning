@@ -3,12 +3,9 @@ import asyncio
 import json
 
 import numpy as np
-
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
-from app.api.schemas import ImagePrediction
 
 from app.computervision.models import PredictionModel, get_models
-
 from app.services.predictions import PredictionService, get_prediction_service
 
 
@@ -18,14 +15,15 @@ app = FastAPI()
 
 async def check_compliance(name, queue):
     """
-    Vérifier la conformité de façon asynchrone
+    Tache de vérification de la conformité d'une image
+     - Dépile la file d'attente (queue) : récupération de l'image, des modèles
+    de computer vision ainsi que le service de manipulation
+    des demandes de prédiction.
+     - Appelle la méthode predict pour chaque modèle
+     - S'arrête au premier modèle prédisant une non-conformité
 
-    :param prediction: Description
-    :type prediction: Prediction
-    :param models: Description
-    :type models: list[PredictionModel]
-    :param service: Description
-    :type service: PredictionService
+    :param name: nom de la tache
+    :param queue: file d'attente contenant les images à traiter
     """
     prediction_requests, models, service = await queue.get()
 
@@ -62,6 +60,7 @@ async def check_compliance(name, queue):
         raise HTTPException(status_code=500, detail="Error: " + str(e))
 
 
+# Initialisation des workers de traitement des images
 queue = asyncio.Queue()
 workers = []
 for i in range(4):
@@ -90,48 +89,6 @@ def health_check(models: list[PredictionModel] = Depends(get_models)):
         "status": "ok", 
         "message": "API is running smoothly."
     }
-
-
-@app.post("/image/compliance", response_model=ImagePrediction)
-async def predict_image(
-    file: UploadFile = File(...),
-    models: list[PredictionModel] = Depends(get_models)
-):
-    """
-    Docstring for predict_image
-    
-    :param file: Description
-    :type file: UploadFile
-    :param models: Description
-    :type models: list[PredictionModel]
-    """
-    try:
-        predicted_class = 0
-        predictions = []
-
-        image = await file.read()
-        for model in models:
-            prediction = model.predict(image)
-            predicted_class = int(np.round(prediction[0][0]))
-
-            predictions.append({
-                "model_path": model.get_model_path(),
-                "probabilites": {
-                    "0": float(1 - prediction[0][0]),
-                    "1": float(prediction[0][0])
-                }
-            })
-
-            if predicted_class == 1:
-                break
-
-        return {
-            "predicted_class": predicted_class,
-            "predictions": predictions
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Error: " + str(e))
 
 
 @app.post("/image/compliance/request")
