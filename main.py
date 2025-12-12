@@ -117,7 +117,7 @@ async def create_compliance_check_request(
         raise HTTPException(status_code=500, detail="Error: " + str(e))
 
 
-@app.get("/image/compliance/request")
+@app.get("/image/compliance/request/{id}")
 async def get_compliance_check_result(
     id: int,
     service: PredictionService = Depends(get_prediction_service)
