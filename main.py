@@ -132,11 +132,16 @@ async def get_compliance_check_result(
     """
     try:
         prediction_request = service.get(id)
+        prediction_result = PredictionResult.model_construct()
 
-        prediction_dict = json.loads(
-            prediction_request.result
-        )
-        return PredictionResult(**prediction_dict)
+        if prediction_request:
+            if prediction_request.status == "done":
+                prediction_dict = json.loads(
+                    prediction_request.result
+                )
+                prediction_result = PredictionResult(**prediction_dict)
+
+        return prediction_result
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error: " + str(e))
