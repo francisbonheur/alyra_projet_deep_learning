@@ -8,9 +8,8 @@ pour la détection de contenu inapproprié.
  - images contenant des scènes de violence
 
 Pour chaque modèle, une nouvelle implémentation de la classe
-PredictionCVModel doit être créée et une instance de cette nouvelle
-classe doit être rajoutée à la liste de modèles renvoyée par la
-méthode get_models.
+PredictionCVModel doit être créée et annotée @prediction_models
+pour être pris en compte 
 """
 
 from abc import ABC, abstractmethod
@@ -20,7 +19,7 @@ import io
 
 import tensorflow as tf
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
-
+from app.computervision.registry import prediction_model
 
 VIOLENCE_CV_MODEL_PATH = "models/mobilenetv2_violence_feature_extract.keras"
 
@@ -60,6 +59,7 @@ class PredictionModel(ABC):
         pass
 
 
+@prediction_model(VIOLENCE_CV_MODEL_PATH)
 class ViolencePredictionCVModel(PredictionModel):
     """
     Classe de chargement du modèles de prédiction de violence
@@ -91,18 +91,3 @@ class ViolencePredictionCVModel(PredictionModel):
             return prediction.tolist()
         except Exception as e:
             raise RuntimeError(f"Error during prediction: {e}")
-
-
-def get_models() -> list[PredictionModel]:
-    """
-    Fonction de chargement des modèles de prédiction
-    """
-    models: list[PredictionModel] = []
-
-    try:
-        models.append(ViolencePredictionCVModel(VIOLENCE_CV_MODEL_PATH))
-
-    except Exception as e:
-        print(f"Error loading models: {e}")
-
-    return models

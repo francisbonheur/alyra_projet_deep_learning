@@ -5,8 +5,10 @@ import json
 import numpy as np
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 
-from app.computervision.models import PredictionModel, get_models
 from app.services.predictions import PredictionService, get_prediction_service
+
+from app.computervision.registry import get_prediction_models
+import app.computervision.models as cv_models
 
 
 # creation de l'instance fastAPI
@@ -69,7 +71,9 @@ for i in range(4):
 
 
 @app.get('/image/healthcheck')
-def health_check(models: list[PredictionModel] = Depends(get_models)):
+def health_check(
+    models: list[cv_models.PredictionModel] = Depends(get_prediction_models)
+):
     """
     Endpoint de vérification de l'état de chargement
     des modèles de computer vision
@@ -95,7 +99,7 @@ def health_check(models: list[PredictionModel] = Depends(get_models)):
 async def create_compliance_check_request(
     file: UploadFile = File(...),
     service: PredictionService = Depends(get_prediction_service),
-    models: list[PredictionModel] = Depends(get_models)
+    models: list[cv_models.PredictionModel] = Depends(get_prediction_models)
 ):
     """
     Créer une request de vérification de la conformité
