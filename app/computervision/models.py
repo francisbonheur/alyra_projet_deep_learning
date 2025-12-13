@@ -9,7 +9,7 @@ pour la détection de contenu inapproprié.
 
 Pour chaque modèle, une nouvelle implémentation de la classe
 PredictionCVModel doit être créée et annotée @prediction_models
-pour être pris en compte 
+pour être pris en compte
 """
 
 from abc import ABC, abstractmethod
