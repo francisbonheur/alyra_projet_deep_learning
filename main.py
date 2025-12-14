@@ -66,7 +66,7 @@ for i in range(4):
     workers.append(worker)
 
 
-@app.get('/image/healthcheck')
+@app.get('/image/compliance/healthcheck')
 def health_check(
     models: list[cv_models.PredictionModel] = Depends(get_prediction_models)
 ):
