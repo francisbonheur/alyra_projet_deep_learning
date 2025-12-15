@@ -47,3 +47,24 @@ def test_get():
 
     assert repository.get(2).status == "pending"
     assert repository.get(2).result == "resultat"
+
+
+def test_get_all():
+    image = '0'
+    prediction_request_1 = PredictionRequest(image)
+    prediction_request_1.result = "resultat"
+    prediction_request_1.status = "pending"
+
+    prediction_request_2 = PredictionRequest(image)
+    prediction_request_2.result = "result"
+    prediction_request_2.status = "done"
+
+    mock_result = Mock()
+    mock_result.all.return_value = [prediction_request_1, prediction_request_2]
+    mock_session.exec.return_value = mock_result
+
+    assert repository.get_all()[0].status == "pending"
+    assert repository.get_all()[0].result == "resultat"
+
+    assert repository.get_all()[1].status == "done"
+    assert repository.get_all()[1].result == "result"
