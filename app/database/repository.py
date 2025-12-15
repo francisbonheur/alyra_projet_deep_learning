@@ -1,7 +1,18 @@
 import os
 from abc import ABC, abstractmethod
 from app.database.model import PredictionRequest
+from fastapi import Depends
 from sqlmodel import Session, create_engine, SQLModel, select
+
+SQLITE3_DATABASE_URL = os.getenv(
+    "SQLITE3_DATABASE_URL",
+    "sqlite:///predictions.db")
+
+
+def get_session() -> Session:
+    engine = create_engine(SQLITE3_DATABASE_URL)
+    SQLModel.metadata.create_all(engine)
+    return Session(engine)
 
 
 class PredictionRepository(ABC):
@@ -38,14 +49,8 @@ class PredictionRepositoryImpl(PredictionRepository):
     Implémentation sqlite
     """
 
-    SQLITE3_DATABASE_URL = os.getenv(
-        "SQLITE3_DATABASE_URL",
-        "sqlite:///predictions.db")
-
-    def __init__(self):
-        self.engine = create_engine(self.SQLITE3_DATABASE_URL)
-        SQLModel.metadata.create_all(self.engine)
-        self.session = Session(self.engine)
+    def __init__(self, session: Session = Depends(get_session)):
+        self.session = session
 
     def add(
         self,
