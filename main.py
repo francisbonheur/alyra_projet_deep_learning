@@ -4,9 +4,10 @@ import json
 import os
 
 import numpy as np
+
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 
-from app.services.predictions import PredictionService, get_prediction_service
+from app.services.predictions import PredictionService
 
 from app.computervision.registry import get_prediction_models
 import app.computervision.models as cv_models
@@ -101,7 +102,7 @@ def health_check(
 @app.post("/image/compliance/request")
 async def create_compliance_check_request(
     file: UploadFile = File(...),
-    service: PredictionService = Depends(get_prediction_service),
+    service: PredictionService = Depends(PredictionService),
     models: list[cv_models.PredictionModel] = Depends(get_prediction_models)
 ):
     """
@@ -127,7 +128,7 @@ async def create_compliance_check_request(
 @app.get("/image/compliance/request/{id}", response_model=PredictionResult)
 async def get_compliance_check_result(
     id: int,
-    service: PredictionService = Depends(get_prediction_service)
+    service: PredictionService = Depends(PredictionService)
 ):
     """
     Récupérer le résultat de la vérification de conformité

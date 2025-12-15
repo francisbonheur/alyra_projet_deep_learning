@@ -1,3 +1,5 @@
+from fastapi import Depends
+
 from app.database.repository import PredictionRepository, PredictionRepositoryImpl
 from app.database.model import PredictionRequest
 
@@ -6,7 +8,10 @@ class PredictionService:
     """
     Service métier de manipulation des demandes de prédictions
     """
-    def __init__(self, repository: PredictionRepository):
+    def __init__(
+        self,
+        repository: PredictionRepository = Depends(PredictionRepositoryImpl)
+    ):
         self.repository = repository
 
     def add_prediction(self, image: bytes) -> PredictionRequest | None:
@@ -27,7 +32,3 @@ class PredictionService:
     ) -> PredictionRequest | None:
         prediction_request = self.repository.update(id, result, "done")
         return prediction_request
-
-
-def get_prediction_service() -> PredictionService:
-    return PredictionService(PredictionRepositoryImpl())
