@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch, Mock
 from sqlmodel import Session
 from app.database.repository import PredictionRepositoryImpl
 from app.database.model import PredictionRequest
-from sqlalchemy.engine.result import TupleResult
+
 
 mock_session = MagicMock(spec=Session)
 repository = PredictionRepositoryImpl(mock_session)
@@ -47,4 +47,3 @@ def test_get():
 
     assert repository.get(2).status == "pending"
     assert repository.get(2).result == "resultat"
-
