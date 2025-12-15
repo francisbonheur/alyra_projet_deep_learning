@@ -9,3 +9,5 @@ preprocessing/*
 
 # vs code settings
 .vscode/
+
+.env

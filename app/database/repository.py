@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 from app.database.model import PredictionRequest
 from sqlmodel import Session, create_engine, SQLModel, select
@@ -12,11 +13,19 @@ class PredictionRepository(ABC):
         pass
 
     @abstractmethod
-    def add(self, prediction_request: PredictionRequest) -> PredictionRequest | None:
+    def add(
+        self,
+        prediction_request: PredictionRequest
+    ) -> PredictionRequest | None:
         pass
 
     @abstractmethod
-    def update(self, id: int, result: str, status: str) -> PredictionRequest | None:
+    def update(
+        self,
+        id: int,
+        result: str,
+        status: str
+    ) -> PredictionRequest | None:
         pass
 
     @abstractmethod
@@ -28,18 +37,31 @@ class PredictionRepositoryImpl(PredictionRepository):
     """
     Implémentation sqlite
     """
-    def __init__(self, db_string="sqlite:///predictions.db"):
-        self.engine = create_engine(db_string)
+
+    SQLITE3_DATABASE_URL = os.getenv(
+        "SQLITE3_DATABASE_URL",
+        "sqlite:///predictions.db")
+
+    def __init__(self):
+        self.engine = create_engine(self.SQLITE3_DATABASE_URL)
         SQLModel.metadata.create_all(self.engine)
         self.session = Session(self.engine)
 
-    def add(self, prediction_request: PredictionRequest) -> PredictionRequest | None:
+    def add(
+        self,
+        prediction_request: PredictionRequest
+    ) -> PredictionRequest | None:
         self.session.add(prediction_request)
         self.session.commit()
         self.session.refresh(prediction_request)
         return prediction_request
 
-    def update(self, id: int, result: str, status: str) -> PredictionRequest | None:
+    def update(
+        self,
+        id: int,
+        result: str,
+        status: str
+    ) -> PredictionRequest | None:
         prediction_request = self.get(id)
         if prediction_request:
             prediction_request.result = result

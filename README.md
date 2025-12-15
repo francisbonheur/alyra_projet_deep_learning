@@ -2,7 +2,7 @@
 
 ```
 # docker build -t alyra-dl-deploy .
-# docker run -d -p 8000:8000 alyra-dl-deploy:latest
+# docker run -e WORKER_POOL_MAX_SIZE="10" -e SQLITE3_DATABASE_URL = "sqlite:///predictions_prod.db" -d -p 8000:8000 alyra-dl-deploy:latest
 ```
 
 # Description 

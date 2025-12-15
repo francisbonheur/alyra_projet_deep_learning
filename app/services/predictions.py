@@ -21,7 +21,10 @@ class PredictionService:
         prediction_requests = self.repository.get_all()
         return prediction_requests
 
-    def update_prediction(self, id: int, result: str) -> PredictionRequest | None:
+    def update_prediction(
+        self, id: int,
+        result: str
+    ) -> PredictionRequest | None:
         prediction_request = self.repository.update(id, result, "done")
         return prediction_request
 

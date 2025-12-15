@@ -9,7 +9,7 @@ def prediction_model(model_path):
     :param model_path: Description
     """
     def decorator(cls):
-        if model_path in MODELS:
+        if model_path in MODELS.keys():
             raise ValueError(f"'{model_path}' is already registered.")
         MODELS[model_path] = cls
         return cls

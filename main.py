@@ -1,6 +1,7 @@
 # import des librairies
 import asyncio
 import json
+import os
 
 import numpy as np
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
@@ -61,7 +62,13 @@ async def check_compliance(name, queue):
 # Initialisation des workers de traitement des images
 queue = asyncio.Queue()
 workers = []
-for i in range(4):
+DEFAULT_WORKER_POOL_MAX_SIZE = "10"
+WORKER_POOL_MAX_SIZE = os.getenv(
+    "WORKER_POOL_MAX_SIZE",
+    DEFAULT_WORKER_POOL_MAX_SIZE
+)
+
+for i in range(int(WORKER_POOL_MAX_SIZE)):
     worker = asyncio.create_task(check_compliance(f'Worker-{i}', queue))
     workers.append(worker)
 
