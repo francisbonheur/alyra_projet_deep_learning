@@ -3,8 +3,6 @@ import asyncio
 import json
 import os
 
-import numpy as np
-
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 
 from app.services.predictions import PredictionService
@@ -13,56 +11,15 @@ from app.computervision.registry import get_prediction_models
 import app.computervision.models as cv_models
 
 from app.api.schema import PredictionResult
+from app.api.worker import ComplianceCheckWorker
 
 
 # creation de l'instance fastAPI
 app = FastAPI()
 
-
-async def check_compliance(name, queue):
-    """
-    Tache de vérification de la conformité d'une image
-     - Dépile la file d'attente (queue) : récupération de l'image, des modèles
-    de computer vision ainsi que le service de manipulation
-    des demandes de prédiction.
-     - Appelle la méthode predict pour chaque modèle
-     - S'arrête au premier modèle prédisant une non-conformité
-
-    :param name: nom de la tache
-    :param queue: file d'attente contenant les images à traiter
-    """
-    prediction_requests, models, service = await queue.get()
-
-    try:
-        prediction_result = PredictionResult.model_construct()
-        prediction_result.predicted_class = 0
-
-        for model in models:
-            prediction = model.predict(prediction_requests.image)
-            prediction_result.predicted_class = int(np.round(prediction[0][0]))
-
-            prediction_result.add_prediction(
-                model.get_model_path(), 
-                float(1 - prediction[0][0]),
-                float(prediction[0][0])
-            )
-
-            if prediction_result.predicted_class == 1:
-                break
-
-        result_as_json = prediction_result.model_dump(mode="json")
-        service.update_prediction(
-            prediction_requests.id,
-            json.dumps(result_as_json)
-        )
-
-    except Exception as e:
-        print(f"Error: {str(e)}")
-
-
 # Initialisation des workers de traitement des images
 queue = asyncio.Queue()
-workers = []
+tasks = []
 DEFAULT_WORKER_POOL_MAX_SIZE = "10"
 WORKER_POOL_MAX_SIZE = os.getenv(
     "WORKER_POOL_MAX_SIZE",
@@ -70,8 +27,9 @@ WORKER_POOL_MAX_SIZE = os.getenv(
 )
 
 for i in range(int(WORKER_POOL_MAX_SIZE)):
-    worker = asyncio.create_task(check_compliance(f'Worker-{i}', queue))
-    workers.append(worker)
+    worker = ComplianceCheckWorker(f'Worker-{i}')
+    task = asyncio.create_task(worker.check_compliance(queue))
+    tasks.append(task)
 
 
 @app.get('/image/compliance/healthcheck')
@@ -87,14 +45,14 @@ def health_check(
     if len(models) == 0:
         raise HTTPException(
             status_code=500,
-            detail={ 
+            detail={
                 "status": "error",
                 "message": "Models not loaded."
             }
         )
 
     return {
-        "status": "ok", 
+        "status": "ok",
         "message": "API is running smoothly."
     }
 
@@ -132,7 +90,7 @@ async def get_compliance_check_result(
 ):
     """
     Récupérer le résultat de la vérification de conformité
-    
+
     :param id: Description
     :type id: int
     :param service: Description
@@ -153,5 +111,3 @@ async def get_compliance_check_result(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error: " + str(e))
-
-
