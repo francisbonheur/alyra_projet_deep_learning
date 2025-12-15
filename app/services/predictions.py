@@ -1,6 +1,9 @@
 from fastapi import Depends
 
-from app.database.repository import PredictionRepository, PredictionRepositoryImpl
+from app.database.repository import (
+    PredictionRepository,
+    PredictionRepositoryImpl
+)
 from app.database.model import PredictionRequest
 
 
