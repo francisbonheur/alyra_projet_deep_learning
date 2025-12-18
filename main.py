@@ -51,9 +51,14 @@ def health_check(
             }
         )
 
+    stats = get_prediction_models.cache_info()
     return {
         "status": "ok",
-        "message": "API is running smoothly."
+        "message": "API is running smoothly.",
+        "cache": {
+            "hits": stats.hits,
+            "misses": stats.misses
+        }
     }
 
 

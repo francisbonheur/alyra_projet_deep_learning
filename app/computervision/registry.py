@@ -1,3 +1,5 @@
+from functools import cache
+
 MODELS = {}
 
 
@@ -16,6 +18,7 @@ def prediction_model(model_path):
     return decorator
 
 
+@cache
 def get_prediction_models():
     """
     Renvoie un instance de chaque classe du registre
