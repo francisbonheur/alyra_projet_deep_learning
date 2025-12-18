@@ -1,4 +1,5 @@
 from fastapi import Depends
+from uuid import UUID
 
 from app.database.repository import (
     PredictionRepository,
@@ -21,7 +22,7 @@ class PredictionService:
         created_prediction = self.repository.add(PredictionRequest(image))
         return created_prediction
 
-    def get(self, id: int) -> PredictionRequest | None:
+    def get(self, id: UUID) -> PredictionRequest | None:
         prediction_request = self.repository.get(id)
         return prediction_request
 
@@ -30,7 +31,7 @@ class PredictionService:
         return prediction_requests
 
     def update_prediction(
-        self, id: int,
+        self, id: UUID,
         result: str
     ) -> PredictionRequest | None:
         prediction_request = self.repository.update(id, result, "done")

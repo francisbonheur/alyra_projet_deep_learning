@@ -3,6 +3,7 @@ import asyncio
 import json
 import os
 
+from uuid import UUID
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 
 from app.services.predictions import PredictionService
@@ -90,7 +91,7 @@ async def create_compliance_check_request(
 
 @app.get("/image/compliance/request/{id}", response_model=PredictionResult)
 async def get_compliance_check_result(
-    id: int,
+    id: UUID,
     service: PredictionService = Depends(PredictionService)
 ):
     """

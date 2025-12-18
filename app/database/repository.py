@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from app.database.model import PredictionRequest
 from fastapi import Depends
 from sqlmodel import Session, create_engine, SQLModel, select
+from uuid import UUID
 
 SQLITE3_DATABASE_URL = os.getenv(
     "SQLITE3_DATABASE_URL",
@@ -20,7 +21,7 @@ class PredictionRepository(ABC):
     Classe de manipulation (CRUD) des objets de type PredictionRequest
     """
     @abstractmethod
-    def get(self, id: int) -> PredictionRequest | None:
+    def get(self, id: UUID) -> PredictionRequest | None:
         pass
 
     @abstractmethod
@@ -33,7 +34,7 @@ class PredictionRepository(ABC):
     @abstractmethod
     def update(
         self,
-        id: int,
+        id: UUID,
         result: str,
         status: str
     ) -> PredictionRequest | None:
@@ -63,7 +64,7 @@ class PredictionRepositoryImpl(PredictionRepository):
 
     def update(
         self,
-        id: int,
+        id: UUID,
         result: str,
         status: str
     ) -> PredictionRequest | None:
@@ -74,7 +75,7 @@ class PredictionRepositoryImpl(PredictionRepository):
             self.add(prediction_request)
         return prediction_request
 
-    def get(self, id: int) -> PredictionRequest | None:
+    def get(self, id: UUID) -> PredictionRequest | None:
         statement = select(PredictionRequest).where(PredictionRequest.id == id)
         return self.session.exec(statement).first()
 
